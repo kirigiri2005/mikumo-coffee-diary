@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "mikumo的咖啡日记",
+    "slug": "mikumo-coffee-diary",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "backgroundColor": "#F5E6D3"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.mikumo.coffeediary"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#F5E6D3"
+      },
+      "package": "com.mikumo.coffeediary"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "scheme": "mikumo-coffee"
+  }
+}
