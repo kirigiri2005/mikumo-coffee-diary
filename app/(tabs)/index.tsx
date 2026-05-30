@@ -94,13 +94,17 @@ export default function InventoryScreen() {
       return;
     }
 
-    if (editingId) {
-      await updateBean(editingId, form);
-    } else {
-      await insertBean(form);
+    try {
+      if (editingId) {
+        await updateBean(editingId, form);
+      } else {
+        await insertBean(form);
+      }
+      setModalVisible(false);
+      await loadBeans();
+    } catch (e: any) {
+      Alert.alert('保存失败', e.message || '未知错误，请重试');
     }
-    setModalVisible(false);
-    await loadBeans();
   };
 
   // 删除确认
@@ -333,7 +337,7 @@ export default function InventoryScreen() {
         onPress={openAdd}
         activeOpacity={0.8}
       >
-        <Ionicons name="add" size={28} color="#FFF" />
+        <Text style={{ color: '#FFF', fontSize: 28, lineHeight: 30, fontWeight: '300' }}>+</Text>
       </TouchableOpacity>
 
       {/* 添加/编辑 Modal */}
@@ -375,10 +379,7 @@ function BeanFormModal({
 }) {
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
-      <ScrollView
-        style={[styles.modalContainer, { backgroundColor: colors.background }]}
-        keyboardShouldPersistTaps="handled"
-      >
+      <View style={[styles.modalContainer, { backgroundColor: colors.background }]}>
         <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
           <TouchableOpacity onPress={onClose}>
             <Text style={[styles.modalCancel, { color: colors.textSecondary }]}>取消</Text>
@@ -386,11 +387,14 @@ function BeanFormModal({
           <Text style={[styles.modalTitle, { color: colors.text }]}>
             {editingId ? '编辑咖啡豆' : '添加咖啡豆'}
           </Text>
-          <TouchableOpacity onPress={onSave}>
-            <Text style={[styles.modalSave, { color: colors.primary }]}>保存</Text>
-          </TouchableOpacity>
+          <View style={{ width: 40 }} />
         </View>
 
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingBottom: 24 }}
+          keyboardShouldPersistTaps="handled"
+        >
         <View style={styles.formBody}>
           {/* 名称 */}
           <FormLabel color={colors.text}>名称 *</FormLabel>
@@ -641,9 +645,21 @@ function BeanFormModal({
           />
         </View>
 
-        <View style={{ height: 40 }} />
+        <View style={{ height: 80 }} />
       </ScrollView>
-    </Modal>
+
+      {/* 固定底部保存按钮 */}
+      <View style={[styles.modalFooter, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+        <TouchableOpacity
+          style={[styles.saveBtn, { backgroundColor: colors.primary }]}
+          onPress={onSave}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.saveBtnText}>{editingId ? '保存修改' : '添加咖啡豆'}</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </Modal>
   );
 }
 
@@ -716,10 +732,10 @@ const styles = StyleSheet.create({
   emptyText: { fontSize: 15, marginTop: 12 },
   fab: {
     position: 'absolute', right: 20, bottom: 24,
-    width: 56, height: 56, borderRadius: 28,
+    width: 60, height: 60, borderRadius: 30,
     justifyContent: 'center', alignItems: 'center',
-    elevation: 4, shadowColor: '#000', shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 }, shadowRadius: 4,
+    elevation: 6, shadowColor: '#000', shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 3 }, shadowRadius: 6,
   },
   // Modal
   modalContainer: { flex: 1 },
@@ -731,6 +747,15 @@ const styles = StyleSheet.create({
   modalCancel: { fontSize: 16 },
   modalTitle: { fontSize: 17, fontWeight: '600' },
   modalSave: { fontSize: 16, fontWeight: '600' },
+  modalFooter: {
+    paddingHorizontal: 16, paddingVertical: 14,
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  saveBtn: {
+    borderRadius: 12, paddingVertical: 14,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  saveBtnText: { color: '#FFF', fontSize: 17, fontWeight: '700' },
   formBody: { padding: 16 },
   label: { fontSize: 14, fontWeight: '500', marginBottom: 6, marginTop: 14 },
   input: {

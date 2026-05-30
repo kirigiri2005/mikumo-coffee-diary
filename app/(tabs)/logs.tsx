@@ -351,7 +351,7 @@ export default function LogsScreen() {
         onPress={openAdd}
         activeOpacity={0.8}
       >
-        <Ionicons name="add" size={28} color="#FFF" />
+        <Text style={{ color: '#FFF', fontSize: 28, lineHeight: 30, fontWeight: '300' }}>+</Text>
       </TouchableOpacity>
 
       {/* 添加/编辑 Modal */}
