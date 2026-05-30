@@ -17,6 +17,7 @@ export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
     CREATE TABLE IF NOT EXISTS coffee_beans (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
+      brand TEXT,
       country TEXT,
       region TEXT,
       farm TEXT,
@@ -40,6 +41,7 @@ export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
   const cols = await db.getAllAsync<{ name: string }>("PRAGMA table_info('coffee_beans')");
   const colNames = cols.map(c => c.name);
   const newCols = [
+    { name: 'brand', def: 'TEXT' },
     { name: 'country', def: 'TEXT' },
     { name: 'region', def: 'TEXT' },
     { name: 'farm', def: 'TEXT' },

@@ -25,7 +25,7 @@ export default function InventoryScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<BeanInput>(emptyForm());
-  const [showRoastDate, setShowPurchaseDate] = useState(false);
+  const [showRoastDate, setShowRoastDate] = useState(false);
   const [showOpenDate, setShowOpenDate] = useState(false);
 
   const loadBeans = useCallback(async () => {
@@ -50,6 +50,8 @@ export default function InventoryScreen() {
   const openAdd = () => {
     setEditingId(null);
     setForm(emptyForm());
+    setShowRoastDate(false);
+    setShowOpenDate(false);
     setModalVisible(true);
   };
 
@@ -60,6 +62,7 @@ export default function InventoryScreen() {
     setEditingId(id);
     setForm({
       name: bean.name,
+      brand: bean.brand ?? undefined,
       country: bean.country ?? undefined,
       region: bean.region ?? undefined,
       farm: bean.farm ?? undefined,
@@ -181,9 +184,16 @@ export default function InventoryScreen() {
         {/* 头部：名称 + 状态标签 */}
         <View style={styles.cardHeader}>
           <View style={{ flex: 1 }}>
-            <Text style={[styles.beanName, { color: colors.text }]} numberOfLines={1}>
-              {item.name}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
+              <Text style={[styles.beanName, { color: colors.text }]} numberOfLines={1}>
+                {item.name}
+              </Text>
+              {item.brand ? (
+                <Text style={[styles.brandTag, { color: colors.accent }]} numberOfLines={1}>
+                  {item.brand}
+                </Text>
+              ) : null}
+            </View>
             {item.flavor ? (
               <Text style={[styles.flavor, { color: colors.textSecondary }]} numberOfLines={1}>
                 {item.flavor}
@@ -336,7 +346,7 @@ export default function InventoryScreen() {
         onSave={handleSave}
         onClose={() => setModalVisible(false)}
         showRoastDate={showRoastDate}
-        setShowPurchaseDate={setShowPurchaseDate}
+        setShowRoastDate={setShowRoastDate}
         showOpenDate={showOpenDate}
         setShowOpenDate={setShowOpenDate}
       />
@@ -348,7 +358,7 @@ export default function InventoryScreen() {
 
 function BeanFormModal({
   visible, form, setForm, editingId, colors,
-  onSave, onClose, showRoastDate, setShowPurchaseDate,
+  onSave, onClose, showRoastDate, setShowRoastDate,
   showOpenDate, setShowOpenDate,
 }: {
   visible: boolean;
@@ -359,7 +369,7 @@ function BeanFormModal({
   onSave: () => void;
   onClose: () => void;
   showRoastDate: boolean;
-  setShowPurchaseDate: (v: boolean) => void;
+  setShowRoastDate: (v: boolean) => void;
   showOpenDate: boolean;
   setShowOpenDate: (v: boolean) => void;
 }) {
@@ -389,6 +399,16 @@ function BeanFormModal({
             value={form.name}
             onChangeText={(t) => setForm({ ...form, name: t })}
             placeholder="例: 埃塞 耶加雪菲"
+            placeholderTextColor={colors.textSecondary}
+          />
+
+          {/* 品牌 */}
+          <FormLabel color={colors.text}>品牌</FormLabel>
+          <TextInput
+            style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.border }]}
+            value={form.brand}
+            onChangeText={(t) => setForm({ ...form, brand: t })}
+            placeholder="例: 花魁、M2M"
             placeholderTextColor={colors.textSecondary}
           />
 
@@ -549,7 +569,7 @@ function BeanFormModal({
           <FormLabel color={colors.text}>烘焙日期 *</FormLabel>
           <TouchableOpacity
             style={[styles.dateBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
-            onPress={() => setShowPurchaseDate(true)}
+            onPress={() => setShowRoastDate(true)}
           >
             <Text style={{ color: colors.text }}>
               {form.roast_date ? dayjs(form.roast_date).format('YYYY-MM-DD') : '选择日期'}
@@ -560,31 +580,53 @@ function BeanFormModal({
               value={form.roast_date ? dayjs(form.roast_date).toDate() : new Date()}
               mode="date"
               onChange={(_, d) => {
-                setShowPurchaseDate(false);
+                setShowRoastDate(false);
                 if (d) setForm({ ...form, roast_date: d.toISOString() });
               }}
             />
           )}
 
           {/* 开封日期 */}
-          <FormLabel color={colors.text}>开封日期</FormLabel>
-          <TouchableOpacity
-            style={[styles.dateBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
-            onPress={() => setShowOpenDate(true)}
-          >
-            <Text style={{ color: form.open_date ? colors.text : colors.textSecondary }}>
-              {form.open_date ? dayjs(form.open_date).format('YYYY-MM-DD') : '未开封（点击选择）'}
-            </Text>
-          </TouchableOpacity>
-          {showOpenDate && (
-            <DateTimePicker
-              value={form.open_date ? dayjs(form.open_date).toDate() : new Date()}
-              mode="date"
-              onChange={(_, d) => {
-                setShowOpenDate(false);
-                if (d) setForm({ ...form, open_date: d.toISOString() });
-              }}
-            />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 14 }}>
+            <FormLabel color={colors.text}>开封日期</FormLabel>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={{ fontSize: 13, color: form.open_date ? colors.textSecondary : colors.primary }}>未开封</Text>
+              <Switch
+                value={!form.open_date}
+                onValueChange={(v) => {
+                  if (v) {
+                    setForm({ ...form, open_date: undefined });
+                  } else {
+                    setForm({ ...form, open_date: dayjs().toISOString() });
+                  }
+                }}
+                trackColor={{ false: colors.border, true: colors.accent }}
+                thumbColor={!form.open_date ? colors.primary : '#f4f3f4'}
+                style={{ transform: [{ scaleX: 0.7 }, { scaleY: 0.7 }] }}
+              />
+            </View>
+          </View>
+          {!form.open_date ? null : (
+            <>
+              <TouchableOpacity
+                style={[styles.dateBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+                onPress={() => setShowOpenDate(true)}
+              >
+                <Text style={{ color: colors.text }}>
+                  {dayjs(form.open_date).format('YYYY-MM-DD')}
+                </Text>
+              </TouchableOpacity>
+              {showOpenDate && (
+                <DateTimePicker
+                  value={dayjs(form.open_date).toDate()}
+                  mode="date"
+                  onChange={(_, d) => {
+                    setShowOpenDate(false);
+                    if (d) setForm({ ...form, open_date: d.toISOString() });
+                  }}
+                />
+              )}
+            </>
           )}
 
           {/* 赏味天数 */}
@@ -653,6 +695,7 @@ const styles = StyleSheet.create({
   },
   beanName: { fontSize: 17, fontWeight: '600', marginBottom: 2 },
   flavor: { fontSize: 12, marginTop: 2 },
+  brandTag: { fontSize: 13, fontWeight: '500' },
   badges: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginLeft: 8 },
   badge: {
     paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10,

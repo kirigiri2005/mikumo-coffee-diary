@@ -5,6 +5,7 @@ import { getDatabase, now } from '../database';
 export interface CoffeeBean {
   id: number;
   name: string;
+  brand: string | null;
   country: string | null;
   region: string | null;
   farm: string | null;
@@ -27,6 +28,7 @@ export interface CoffeeBean {
 
 export interface BeanInput {
   name: string;
+  brand?: string;
   country?: string;
   region?: string;
   farm?: string;
@@ -112,10 +114,11 @@ export async function insertBean(input: BeanInput): Promise<number> {
   const db = await getDatabase();
   const unitPrice = calcUnitPrice(input.total_price, input.net_weight);
   const result = await db.runAsync(
-    `INSERT INTO coffee_beans (name, country, region, farm, variety, process_method, roast_level, flavor, net_weight, total_price, unit_price, roast_date, open_date, best_days, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO coffee_beans (name, brand, country, region, farm, variety, process_method, roast_level, flavor, net_weight, total_price, unit_price, roast_date, open_date, best_days, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       input.name,
+      input.brand ?? null,
       input.country ?? null,
       input.region ?? null,
       input.farm ?? null,
@@ -142,7 +145,7 @@ export async function updateBean(id: number, input: BeanInput): Promise<void> {
   const unitPrice = calcUnitPrice(input.total_price, input.net_weight);
   await db.runAsync(
     `UPDATE coffee_beans SET
-      name = ?, country = ?, region = ?, farm = ?, variety = ?,
+      name = ?, brand = ?, country = ?, region = ?, farm = ?, variety = ?,
       process_method = ?, roast_level = ?, flavor = ?,
       net_weight = ?, total_price = ?, unit_price = ?,
       roast_date = ?, open_date = ?, best_days = ?,
@@ -150,6 +153,7 @@ export async function updateBean(id: number, input: BeanInput): Promise<void> {
      WHERE id = ?`,
     [
       input.name,
+      input.brand ?? null,
       input.country ?? null,
       input.region ?? null,
       input.farm ?? null,
