@@ -54,7 +54,10 @@ export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
       await db.execAsync(`ALTER TABLE coffee_beans ADD COLUMN ${col.name} ${col.def}`);
     }
   }
-  // 如果旧表有 origin 列，无需删除，保留即可
+  // 如果有旧 purchase_date 列，数据迁移到 roast_date
+  if (colNames.includes('purchase_date') && colNames.includes('roast_date')) {
+    await db.execAsync(`UPDATE coffee_beans SET roast_date = purchase_date WHERE roast_date IS NULL AND purchase_date IS NOT NULL`);
+  }
 
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS brew_logs (

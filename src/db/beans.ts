@@ -114,8 +114,8 @@ export async function insertBean(input: BeanInput): Promise<number> {
   const db = await getDatabase();
   const unitPrice = calcUnitPrice(input.total_price, input.net_weight);
   const result = await db.runAsync(
-    `INSERT INTO coffee_beans (name, brand, country, region, farm, variety, process_method, roast_level, flavor, net_weight, total_price, unit_price, roast_date, open_date, best_days, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO coffee_beans (name, brand, country, region, farm, variety, process_method, roast_level, flavor, net_weight, total_price, unit_price, roast_date, purchase_date, open_date, best_days, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       input.name,
       input.brand ?? null,
@@ -130,6 +130,7 @@ export async function insertBean(input: BeanInput): Promise<number> {
       input.total_price,
       unitPrice,
       input.roast_date,
+      input.roast_date,  // 兼容旧表 purchase_date NOT NULL
       input.open_date ?? null,
       input.best_days ?? null,
       now(),
@@ -148,12 +149,25 @@ export async function updateBean(id: number, input: BeanInput): Promise<void> {
       name = ?, brand = ?, country = ?, region = ?, farm = ?, variety = ?,
       process_method = ?, roast_level = ?, flavor = ?,
       net_weight = ?, total_price = ?, unit_price = ?,
-      roast_date = ?, open_date = ?, best_days = ?,
+      roast_date = ?, purchase_date = ?, open_date = ?, best_days = ?,
       updated_at = ?
      WHERE id = ?`,
     [
       input.name,
       input.brand ?? null,
+      input.country ?? null,
+      input.region ?? null,
+      input.farm ?? null,
+      input.variety ?? null,
+      input.process_method ?? null,
+      input.roast_level ?? null,
+      input.flavor ?? null,
+      input.net_weight,
+      input.total_price,
+      unitPrice,
+      input.roast_date,
+      input.roast_date,  // 兼容旧表 purchase_date NOT NULL
+      input.open_date ?? null,
       input.country ?? null,
       input.region ?? null,
       input.farm ?? null,
