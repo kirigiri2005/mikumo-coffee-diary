@@ -4,6 +4,8 @@
 
 **离线优先 · 数据自有 · 开源免费**
 
+[![Download APK](https://img.shields.io/badge/下载-APK%20v1.0.1-brightgreen?style=for-the-badge&logo=android)](https://github.com/kirigiri2005/mikumo-coffee-diary/releases/tag/v1.0.1)
+
 ## 功能
 
 ### 咖啡豆库存
