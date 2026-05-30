@@ -1,5 +1,23 @@
 # mikumo的咖啡日记 — 更新日志
 
+## V1.0.4 (2026-05-30)
+
+### 修复
+- 修复旧版数据库升级后保存报错 `NOT NULL constraint failed: purchase_date`
+- 插入时同时写入 roast_date 和 purchase_date 兼容旧表结构
+- 自动迁移旧数据 purchase_date → roast_date
+
+---
+
+## V1.0.3 (2026-05-30)
+
+### 修复
+- 保存按钮改为固定底部，键盘不再遮挡
+- FAB 加号按钮用纯文本 `+` 替代 Ionicons 图标，确保所有设备可见
+- 添加保存失败错误弹窗提示
+
+---
+
 ## V1.0.2 (2026-05-30)
 
 ### 新增
